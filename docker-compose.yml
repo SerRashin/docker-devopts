@@ -1,10 +1,10 @@
 
-################ NGINX ################
+################ NGINX Container ################
 front:
   restart: always
   container_name: nginx
 #  image: nginx:latest
-  build: ./docker/conteiner/nginx/
+  build: ./docker/container/nginx/
   ports:
     - 80:80
     - 443:443
@@ -16,31 +16,31 @@ front:
   links:
     - php-fpm
     - phpmyadmin:phpmyadmin
-################ NGINX END; ################
+################ NGINX Container END; ################
 
 
-################ PHP-FPM ################
+################ PHP-FPM Container ################
 php-fpm:
   restart: always
   container_name: php-fpm
 #  image: php:7.1-fpm
-  build: ./docker/conteiner/php/5.6/
-#  build: ./docker/conteiner/php/7.1/
+  build: ./docker/container/php/5.6/
+#  build: ./docker/container/php/7.1/
   volumes:
     - ./:/var/www/
     - ./docker/config/php/5.6/php.ini:/usr/local/etc/php/php.ini
     - ./docker/config/php/5.6/upload.ini:/usr/local/etc/php/upload.ini
   links:
     - mysql:mysql
-################ PHP-FPM END; ################
+################ PHP-FPM Container END; ################
 
 
-################ MYSQL ################
+################ MYSQL Container ################
 mysql:
   restart: always
   container_name: mysql
 #  image: mysql:latest
-  build: ./docker/conteiner/mysql/
+  build: ./docker/container/mysql/
   ports:
     - 3306:3306
   environment:
@@ -48,9 +48,9 @@ mysql:
   volumes:
     - ./docker/data/mysql:/var/lib/mysql
     - ./docker/log/mysql:/var/log/mysql
-################ MYSQL END; ################
+################ MYSQL Container END; ################
 
-################ PHPMYADMIN ################
+################ PHPMYADMIN Container ################
 # При первом входе введите в поле Server (Сервер) - название контейнера БД, в нашем случае это mysql
 # введите имя логина - root пароль - MYSQL_ROOT_PASSWORD
 # создайте учетную запись для обслуживания БД (Примечание host нужно выбрать "любой: %")
@@ -70,4 +70,18 @@ phpmyadmin:
   volumes:
     - ./docker/data/pma/sessions:/sessions
 
-################ PHPMYADMIN END; ################
+################ PHPMYADMIN Container END; ################
+
+################ PostgreSQL Container ################
+postgres:
+  build: ./postgres
+  build: ./docker/container/postgres/
+  volumes:
+    - ./docker/data/postgres:/var/lib/postgresql/data
+  ports:
+    - "5432:5432"
+  environment:
+    POSTGRES_DB: homestead
+    POSTGRES_USER: homestead
+    POSTGRES_PASSWORD: secret
+################ PostgreSQL Container END; ################
