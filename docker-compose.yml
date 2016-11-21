@@ -1,0 +1,73 @@
+
+################ NGINX ################
+front:
+  restart: always
+  container_name: nginx
+#  image: nginx:latest
+  build: ./docker/conteiner/nginx/
+  ports:
+    - 80:80
+    - 443:443
+    - 9000:9000
+  volumes:
+    - ./:/var/www/
+    - ./docker/config/nginx/conf.d:/etc/nginx/conf.d
+    - ./docker/log/nginx:/var/log/nginx
+  links:
+    - php-fpm
+    - phpmyadmin:phpmyadmin
+################ NGINX END; ################
+
+
+################ PHP-FPM ################
+php-fpm:
+  restart: always
+  container_name: php-fpm
+#  image: php:7.1-fpm
+  build: ./docker/conteiner/php/5.6/
+#  build: ./docker/conteiner/php/7.1/
+  volumes:
+    - ./:/var/www/
+    - ./docker/config/php/5.6/php.ini:/usr/local/etc/php/php.ini
+    - ./docker/config/php/5.6/upload.ini:/usr/local/etc/php/upload.ini
+  links:
+    - mysql:mysql
+################ PHP-FPM END; ################
+
+
+################ MYSQL ################
+mysql:
+  restart: always
+  container_name: mysql
+#  image: mysql:latest
+  build: ./docker/conteiner/mysql/
+  ports:
+    - 3306:3306
+  environment:
+    MYSQL_ROOT_PASSWORD: 1
+  volumes:
+    - ./docker/data/mysql:/var/lib/mysql
+    - ./docker/log/mysql:/var/log/mysql
+################ MYSQL END; ################
+
+################ PHPMYADMIN ################
+# При первом входе введите в поле Server (Сервер) - название контейнера БД, в нашем случае это mysql
+# введите имя логина - root пароль - MYSQL_ROOT_PASSWORD
+# создайте учетную запись для обслуживания БД (Примечание host нужно выбрать "любой: %")
+phpmyadmin:
+  restart: always
+  container_name: phpmyadmin
+  image: phpmyadmin/phpmyadmin
+  links:
+    - mysql:mysql
+  ports:
+      - 8181:80
+  environment:
+      MYSQL_ROOT_PASSWORD: 1
+      MYSQL_USER: ser
+      MYSQL_PASSWORD: ser
+      PMA_ARBITRARY: 1
+  volumes:
+    - ./docker/data/pma/sessions:/sessions
+
+################ PHPMYADMIN END; ################
