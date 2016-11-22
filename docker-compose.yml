@@ -3,7 +3,6 @@
 front:
   restart: always
   container_name: nginx
-#  image: nginx:latest
   build: ./docker/container/nginx/
   ports:
     - 80:80
@@ -16,6 +15,7 @@ front:
   links:
     - php-fpm
     - phpmyadmin:phpmyadmin
+#    - phppgadmin:phppgadmin
 ################ NGINX Container END; ################
 
 
@@ -23,15 +23,17 @@ front:
 php-fpm:
   restart: always
   container_name: php-fpm
-#  image: php:7.1-fpm
-  build: ./docker/container/php/5.6/
-#  build: ./docker/container/php/7.1/
+  build: ./docker/container/php/7.1/
   volumes:
     - ./:/var/www/
-    - ./docker/config/php/5.6/php.ini:/usr/local/etc/php/php.ini
-    - ./docker/config/php/5.6/upload.ini:/usr/local/etc/php/upload.ini
+    - ./docker/config/php/7.1/php.ini:/usr/local/etc/php/php.ini
+    - ./docker/config/php/7.1/upload.ini:/usr/local/etc/php/upload.ini
   links:
+    - memcached:memcached
+    - redis:redis
+    - mongo:mongo
     - mysql:mysql
+#    - postgres:postgres
 ################ PHP-FPM Container END; ################
 
 
@@ -39,7 +41,6 @@ php-fpm:
 mysql:
   restart: always
   container_name: mysql
-#  image: mysql:latest
   build: ./docker/container/mysql/
   ports:
     - 3306:3306
@@ -50,6 +51,7 @@ mysql:
     - ./docker/log/mysql:/var/log/mysql
 ################ MYSQL Container END; ################
 
+
 ################ PHPMYADMIN Container ################
 # При первом входе введите в поле Server (Сервер) - название контейнера БД, в нашем случае это mysql
 # введите имя логина - root пароль - MYSQL_ROOT_PASSWORD
@@ -57,7 +59,7 @@ mysql:
 phpmyadmin:
   restart: always
   container_name: phpmyadmin
-  image: phpmyadmin/phpmyadmin
+  build: ./docker/container/phpmyadmin/
   links:
     - mysql:mysql
   ports:
@@ -68,20 +70,94 @@ phpmyadmin:
       MYSQL_PASSWORD: ser
       PMA_ARBITRARY: 1
   volumes:
-    - ./docker/data/pma/sessions:/sessions
-
+    - ./docker/data/phpmyadmin/sessions:/sessions
 ################ PHPMYADMIN Container END; ################
 
+
 ################ PostgreSQL Container ################
-postgres:
-  build: ./postgres
-  build: ./docker/container/postgres/
-  volumes:
-    - ./docker/data/postgres:/var/lib/postgresql/data
-  ports:
-    - "5432:5432"
-  environment:
-    POSTGRES_DB: homestead
-    POSTGRES_USER: homestead
-    POSTGRES_PASSWORD: secret
+#postgres:
+#  restart: always
+#  container_name: postgres
+#  build: ./docker/container/postgres/
+#  ports:
+#    - 5432:5432
+#  environment:
+#    POSTGRES_USER: ser
+#    POSTGRES_PASSWORD: ser
+#  volumes:
+#    - ./docker/data/postgres:/var/lib/postgresql/data
+#    - ./docker/log/postgres:/var/log/postgresql
 ################ PostgreSQL Container END; ################
+
+################ PGAdmin Container ################
+### Выберите на свой вкус один из двух ###
+#phppgadmin:
+#  restart: always
+#  container_name: pgadmin
+#  build: ./docker/container/phppgadmin/
+#  environment:
+#    - POSTGRESQL_HOST=postgres
+#    - POSTGRESQL_PORT=5432
+#    - POSTGRESQL_DEFAULT_DB=postgres
+#  ports:
+#    - 8182:80
+#  links:
+#    - postgres:postgres
+### Выберите на свой вкус один из двух ###
+#phppgadmin:
+#  restart: always
+#  container_name: pgadmin
+#  build: ./docker/container/pgadmin/
+#  ports:
+#    - 8182:5050
+#  links:
+#    - postgres:postgres
+#  volumes:
+#      - ./docker/data/phppgadmin:/root/.pgadmin
+################ PGAdmin Container ################
+
+################ MongoDB Container ################
+mongo:
+  restart: always
+  container_name: mongo
+  build: ./docker/container/mongo/
+  ports:
+    - 27017:27017
+  volumes:
+    - ./docker/data/mongo:/data/db
+################ MongoDB Container END; ################
+
+################ Redis Container ################
+redis:
+  restart: always
+  container_name: redis
+  build: ./docker/container/redis/
+  ports:
+    - 6379:6379
+  volumes:
+    - ./docker/data/redis:/data
+################ MongoDB Container END; ################
+
+################ PHPRedisAdmin Container ################
+#phpredisadmin:
+#  restart: always
+#  container_name: phpredisadmin
+#  build: ./docker/container/phpredisadmin/
+#  ports:
+#    - 8185:80
+#  environment:
+#    - REDIS_1_HOST=redis
+#  links:
+#    - redis
+################ PHPRedisAdmin Container END; ################
+
+################ PHPRedisAdmin Container ################
+memcached:
+  restart: always
+  container_name: memcached
+  build: ./docker/container/memcached
+  volumes:
+      - ./docker/data/memcached:/var/lib/memcached
+  ports:
+      - 11211:11211
+################ PHPRedisAdmin Container END; ################

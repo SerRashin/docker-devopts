@@ -14,6 +14,7 @@ RUN apt-get update -y && \
       apt-utils \
       openssl \
       tree \
+      postgresql-client \
       mysql-client \
       php5-memcache
 
@@ -54,7 +55,7 @@ RUN apt-get install -y libmcrypt-dev && docker-php-ext-install mcrypt
 
 # Install PDO
 RUN apt-get install -y libpq-dev sqlite3 libsqlite3-dev \
-  && docker-php-ext-install pdo_pgsql pdo_mysql pdo_sqlite
+  && docker-php-ext-install mysql mysqli pgsql pdo_pgsql pdo_mysql pdo_sqlite
 
 # imagick
 RUN runtimeRequirements="libmagickwand-6.q16-dev --no-install-recommends" \
@@ -116,9 +117,7 @@ RUN echo "extension=mongo.so" >> /usr/local/etc/php/conf.d/mongo.ini
 RUN apt-get install -y \
         libcurl4-nss-dev \
     && docker-php-ext-install iconv \
-    && docker-php-ext-install curl \
-    && docker-php-ext-install mysql \
-    && docker-php-ext-install mysqli
+    && docker-php-ext-install curl
 
 RUN apt-get update && apt-get install -y libz-dev libmemcached-dev libmemcached11 \
     && pecl install memcached \

@@ -15,6 +15,7 @@ RUN apt-get update -y && \
       apt-utils \
       openssl \
       tree \
+      postgresql-client \
       mysql-client
 
 # Install opcache
@@ -54,7 +55,7 @@ RUN apt-get install -y libmcrypt-dev && docker-php-ext-install mcrypt
 
 # Install PDO
 RUN apt-get install -y libpq-dev sqlite3 libsqlite3-dev \
-  && docker-php-ext-install pdo_pgsql pdo_mysql pdo_sqlite
+  && docker-php-ext-install pgsql pdo_pgsql pdo_mysql pdo_sqlite
 
 # Install phpredis
 RUN git clone -b php7 https://github.com/phpredis/phpredis.git /usr/src/php/ext/redis \
@@ -89,7 +90,7 @@ RUN apt-get update -y && apt-get install -y libxslt-dev && docker-php-ext-instal
 RUN docker-php-ext-install xmlrpc
 
 # Install mongo
-RUN pecl install mongodb-beta && echo "extension=mongo.so" > /usr/local/etc/php/conf.d/mongo.ini
+RUN pecl install mongodb && echo "extension=mongodb.so" > /usr/local/etc/php/conf.d/mongo.ini
 
 # ftp
 RUN apt-get update \
